@@ -1,0 +1,8 @@
+<Bindings>
+	<Binding name="NEPOCLEANSE_CLEANSE" header="NEPOCLEANSE">
+		NepoCleanse_CleanseNext()
+	</Binding>
+	<Binding name="NEPOCLEANSE_OPTIONS">
+		NepoCleanse_ToggleOptions()
+	</Binding>
+</Bindings>

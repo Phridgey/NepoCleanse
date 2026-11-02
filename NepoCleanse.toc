@@ -1,0 +1,8 @@
+## Interface: 11200
+## Title: NepoCleanse
+## Notes: Shows debuffs you can remove from people on your friends list and your own list of names, inside dungeons, raids and battlegrounds only. Click a row (or the key binding) to remove it.
+## Author: Phridgey
+## Version: 1.0
+## SavedVariables: NepoCleanseDB
+Core.lua
+UI.lua
