@@ -1,7 +1,7 @@
 # NepoCleanse
 
 A debuff-removal helper for World of Warcraft 1.12, built from the ideas and data of
-[Rinse](https://github.com/Shaykh/Rinse), redesigned to stay out of the way.
+Rinse (by Otari), redesigned to stay out of the way.
 
 ## What it does
 
