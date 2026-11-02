@@ -22,7 +22,8 @@ Rinse (by Otari), redesigned to stay out of the way.
 
 - **People** – the two lists, with search.
 - **Debuffs** – hide debuffs or show them first; search; see what has turned up this session.
-- **Title bar** – show or hide the bar and its parts, name, colour, height, text size, background.
+- **Title bar** – show or hide the bar and its parts, name, colour, height, text size, background;
+  window width, row height, list background and whole-window see-through.
 - **General** – where it runs, watch yourself too, skip Abolish, sound, lock, rows, size.
 
 Other commands: `/nc on` (run everywhere), `/nc auto` (instances only), `/nc go` (remove the first debuff in range).

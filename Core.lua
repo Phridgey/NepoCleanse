@@ -86,6 +86,8 @@ local DEFAULTS = {
 	header = true, headerTitle = true, headerCount = true, headerEmptyText = true, headerLine = true,
 	hideEmpty = true, title = "NepoCleanse", headerHeight = 16, headerFont = 10, headerAlpha = .85,
 	headerColor = "66ccff",
+	-- window
+	width = 230, rowHeight = 20, listAlpha = .7, windowAlpha = 1,
 }
 
 local db

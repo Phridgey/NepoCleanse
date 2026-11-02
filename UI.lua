@@ -10,7 +10,7 @@
 ]]
 
 local R = NepoCleanse
-local MAXROWS, ROWH, WIDTH = 15, 20, 230
+local MAXROWS = 15
 local FLAT = "Interface\\Buttons\\WHITE8X8"
 
 local function Backdrop(f, a)
@@ -52,7 +52,7 @@ end
 local function BuildList()
 	local db = R.db
 	frame = CreateFrame("Frame", "NepoCleanseFrame", UIParent)
-	frame:SetWidth(WIDTH)
+	frame:SetWidth(db.width)
 	frame:SetHeight(16)
 	frame:SetFrameStrata("MEDIUM")
 	frame:SetMovable(true)
@@ -102,7 +102,6 @@ local function BuildList()
 	rows = {}
 	for i = 1, MAXROWS do
 		local row = CreateFrame("Button", nil, frame)
-		row:SetHeight(ROWH)
 		row:SetFrameLevel(body:GetFrameLevel() + 1)
 		row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 		row:SetHighlightTexture(FLAT)
@@ -117,19 +116,15 @@ local function BuildList()
 		row.bar:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
 		row.bar:SetPoint("BOTTOMLEFT", row, "BOTTOMLEFT", 0, 0)
 		row.icon = row:CreateTexture(nil, "ARTWORK")
-		row.icon:SetWidth(ROWH - 4)
-		row.icon:SetHeight(ROWH - 4)
 		row.icon:SetPoint("LEFT", row, "LEFT", 6, 0)
 		row.icon:SetTexCoord(.08, .92, .08, .92)
 		row.stacks = Text(row, "NumberFontNormalSmall", nil, "RIGHT")
 		row.stacks:SetPoint("BOTTOMRIGHT", row.icon, "BOTTOMRIGHT", 2, -1)
 		row.who = Text(row, nil, 11)
 		row.who:SetPoint("LEFT", row.icon, "RIGHT", 5, 0)
-		row.who:SetWidth(85)
 		row.what = Text(row, nil, 10, "RIGHT")
 		row.what:SetPoint("LEFT", row.who, "RIGHT", 2, 0)
 		row.what:SetPoint("RIGHT", row, "RIGHT", -5, 0)
-		row.what:SetHeight(ROWH)
 
 		row:SetScript("OnClick", function()
 			local e = this.entry
@@ -188,7 +183,7 @@ function R.Refresh()
 			row:EnableMouse(false)
 		end
 	end
-	frame:SetHeight(HeaderHeight() + shown * ROWH + (shown > 0 and 1 or 0))
+	frame:SetHeight(HeaderHeight() + shown * db.rowHeight + (shown > 0 and 1 or 0))
 	body:SetAlpha(shown > 0 and 1 or 0)
 	if not db.headerCount then
 		header.count:SetText("")
@@ -201,7 +196,7 @@ function R.Refresh()
 	end
 	-- nothing to show, locked, and "hide when empty" on: show nothing at all
 	local quiet = n == 0 and db.locked and db.hideEmpty
-	frame:SetAlpha(quiet and 0 or 1)
+	frame:SetAlpha(quiet and 0 or db.windowAlpha)
 	header:EnableMouse(HeaderShown() and not quiet)
 end
 
@@ -237,11 +232,21 @@ function R.ApplyLook()
 	local title = db.headerTitle and ("|cff" .. db.headerColor .. (db.title ~= "" and db.title or "NepoCleanse") .. "|r") or ""
 	if not db.locked then title = title .. " |cff888888(drag me)|r" end
 	header.title:SetText(title)
+	-- window size and see-through
+	local rh = db.rowHeight
+	frame:SetWidth(db.width)
+	body:SetBackdropColor(.06, .06, .08, db.listAlpha)
+	body:SetBackdropBorderColor(0, 0, 0, db.listAlpha > 0 and 1 or 0)
 	for i = 1, MAXROWS do
 		local row = rows[i]
+		row:SetHeight(rh)
+		row.icon:SetWidth(rh - 4)
+		row.icon:SetHeight(rh - 4)
+		row.who:SetWidth(math.floor(db.width * .37))
+		row.what:SetHeight(rh)
 		row:ClearAllPoints()
-		row:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -hh - (i - 1) * ROWH)
-		row:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -hh - (i - 1) * ROWH)
+		row:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -hh - (i - 1) * rh)
+		row:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -hh - (i - 1) * rh)
 	end
 	R.Refresh()
 end
@@ -702,19 +707,19 @@ local function BuildTitleBar(p)
 	local look = function() R.ApplyLook() end
 	Heading(p, "Shown or hidden", 0)
 	Check(p, "Show the title bar", "header", 0, -16, look)
-	Check(p, "Show the name", "headerTitle", 0, -38, look)
-	Check(p, "Show the count", "headerCount", 0, -60, look)
-	Check(p, "Show \"nothing to remove\" when empty", "headerEmptyText", 0, -82, look)
-	Check(p, "Coloured line under the bar", "headerLine", 0, -104, look)
-	Check(p, "Hide everything when there is nothing to remove", "hideEmpty", 0, -126, look)
+	Check(p, "Show the name", "headerTitle", 0, -36, look)
+	Check(p, "Show the count", "headerCount", 0, -56, look)
+	Check(p, "Show \"nothing to remove\" when empty", "headerEmptyText", 0, -76, look)
+	Check(p, "Coloured line under the bar", "headerLine", 0, -96, look)
+	Check(p, "Hide everything when there is nothing to remove", "hideEmpty", 0, -116, look)
 	local note = Text(p, "GameFontDisableSmall", 10)
-	note:SetPoint("TOPLEFT", p, "TOPLEFT", 4, -152)
+	note:SetPoint("TOPLEFT", p, "TOPLEFT", 4, -142)
 	note:SetPoint("RIGHT", p, "RIGHT", 0, 0)
-	note:SetText("While the list is unlocked the bar always shows, so you can drag it; hiding when empty also waits until it is locked.")
+	note:SetText("While unlocked, the bar always shows (so you can drag it) and the list never hides.")
 
-	Heading(p, "Look", -176)
+	Heading(p, "Look", -160)
 	local nameBox = SearchBox(p, "NepoCleanseTitleText", "Name on the bar...", nil)
-	nameBox:SetPoint("TOPLEFT", p, "TOPLEFT", 6, -194)
+	nameBox:SetPoint("TOPLEFT", p, "TOPLEFT", 6, -178)
 	nameBox:SetWidth(150)
 	nameBox:SetScript("OnShow", function() this:SetText(R.db.title) end)
 	local function saveName()
@@ -726,14 +731,14 @@ local function BuildTitleBar(p)
 	SmallButton(p, "Set name", 70, saveName):SetPoint("LEFT", nameBox, "RIGHT", 6, 0)
 
 	local cl = Text(p, nil, 11)
-	cl:SetPoint("TOPLEFT", p, "TOPLEFT", 4, -224)
+	cl:SetPoint("TOPLEFT", p, "TOPLEFT", 4, -210)
 	cl:SetText("Colour:")
 	titlebar.swatches = {}
 	for i = 1, getn(SWATCHES) do
 		local sw = CreateFrame("Button", nil, p)
 		sw:SetWidth(18)
 		sw:SetHeight(18)
-		sw:SetPoint("TOPLEFT", p, "TOPLEFT", 50 + (i - 1) * 24, -220)
+		sw:SetPoint("TOPLEFT", p, "TOPLEFT", 50 + (i - 1) * 24, -206)
 		sw.ring = sw:CreateTexture(nil, "BACKGROUND")
 		sw.ring:SetTexture(FLAT)
 		sw.ring:SetPoint("TOPLEFT", sw, "TOPLEFT", -2, 2)
@@ -752,9 +757,17 @@ local function BuildTitleBar(p)
 		titlebar.swatches[i] = sw
 	end
 
-	Slider(p, "Height", "headerHeight", 10, 28, 1, 6, -262, "%d", look)
-	Slider(p, "Text size", "headerFont", 8, 16, 1, 176, -262, "%d", look)
-	Slider(p, "Background", "headerAlpha", 0, 1, .05, 6, -302, "%.2f", look)
+	local function S(label, key, lo, hi, step, col, line, fmt)
+		local sl = Slider(p, label, key, lo, hi, step, 6 + (col - 1) * 130, -246 - (line - 1) * 36, fmt, look)
+		sl:SetWidth(115)
+	end
+	S("Bar height", "headerHeight", 10, 28, 1, 1, 1, "%d")
+	S("Text size", "headerFont", 8, 16, 1, 2, 1, "%d")
+	S("Bar background", "headerAlpha", 0, 1, .05, 3, 1, "%.2f")
+	S("Width", "width", 150, 400, 5, 1, 2, "%d")
+	S("Row height", "rowHeight", 14, 32, 1, 2, 2, "%d")
+	S("List background", "listAlpha", 0, 1, .05, 3, 2, "%.2f")
+	S("Whole window", "windowAlpha", .2, 1, .05, 1, 3, "%.2f")
 
 	function titlebar.Update()
 		for i = 1, getn(titlebar.swatches) do
