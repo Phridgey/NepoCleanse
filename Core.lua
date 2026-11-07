@@ -189,6 +189,8 @@ end
 function R.RebuildUnits()
 	for k in pairs(R.units) do R.units[k] = nil end
 	local function add(unit)
+		-- in a raid you are also one of raid1-40: keep only "player", so you get one row
+		if unit ~= "player" and UnitIsUnit(unit, "player") then return end
 		local name = UnitName(unit)
 		if name and R.watched[name] then
 			R.units[unit] = name dirty[unit] = true anyDirty = true
@@ -219,7 +221,7 @@ function R.SetProfile(p)
 	R.Resort()
 end
 
--- Raid list: everyone in the raid (or party) except you, main tanks first, then paladins,
+-- Raid list: everyone in the raid (or party), you included, main tanks first, then paladins,
 -- priests and shamans, then everyone else by class. Replaces the old Raid list.
 local IMPORT_ORDER = { PALADIN = 1, PRIEST = 2, SHAMAN = 3, WARRIOR = 4, DRUID = 5, ROGUE = 6, HUNTER = 7,
 	MAGE = 8, WARLOCK = 9 }
@@ -240,9 +242,8 @@ end
 
 function R.ImportRaid()
 	local people = {}
-	local me = UnitName("player")
 	local function add(name, class)
-		if name and name ~= me then
+		if name then
 			R.NoteClass(name, class)
 			table.insert(people, { name = name, class = db.classes[name] or "" })
 		end
@@ -254,6 +255,8 @@ function R.ImportRaid()
 			add(name, class)
 		end
 	else
+		local _, myClass = UnitClass("player")
+		add(UnitName("player"), myClass)
 		for i = 1, GetNumPartyMembers() do
 			local _, class = UnitClass("party" .. i)
 			add(UnitName("party" .. i), class)
