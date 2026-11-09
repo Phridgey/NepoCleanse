@@ -80,7 +80,7 @@ local ABOLISH_ICON = {
 ------------------------------------------------------------------------------
 local DEFAULTS = {
 	dungeons = true, raids = true, battlegrounds = true, everywhere = false,
-	includeMe = false, skipAbolish = true, sound = true, locked = false,
+	includeMe = false, skipAbolish = true, targetFirst = false, sound = true, locked = false,
 	rows = 6, scale = 1,
 	-- title bar
 	header = true, headerTitle = true, headerCount = true, headerEmptyText = true, headerLine = true,
@@ -424,7 +424,10 @@ local function SortEntries()
 	for k in pairs(rank) do rank[k] = nil end
 	local list = R.List()
 	for i = 1, getn(list) do rank[list[i]] = i end
+	-- optional: whoever you have targeted goes to the top
+	local target = db.targetFirst and UnitExists("target") and UnitName("target")
 	table.sort(R.entries, function(a, b)
+		if target and (a.name == target) ~= (b.name == target) then return a.name == target end
 		local ra, rb = rank[a.name] or 1000, rank[b.name] or 1000
 		if ra ~= rb then return ra < rb end
 		if a.first ~= b.first then return a.first end
@@ -517,7 +520,7 @@ local function ShouldBeActive()
 	return db.dungeons
 end
 
-local WORK_EVENTS = { "UNIT_AURA", "RAID_ROSTER_UPDATE", "PARTY_MEMBERS_CHANGED", "SPELLS_CHANGED" }
+local WORK_EVENTS = { "UNIT_AURA", "RAID_ROSTER_UPDATE", "PARTY_MEMBERS_CHANGED", "SPELLS_CHANGED", "PLAYER_TARGET_CHANGED" }
 
 function R.UpdateActive()
 	local want = ShouldBeActive() and next(usable) ~= nil
@@ -554,6 +557,8 @@ f:SetScript("OnEvent", function()
 		if R.units[arg1] then dirty[arg1] = true anyDirty = true end
 	elseif event == "RAID_ROSTER_UPDATE" or event == "PARTY_MEMBERS_CHANGED" then
 		R.RebuildUnits()
+	elseif event == "PLAYER_TARGET_CHANGED" then
+		if db.targetFirst and getn(R.entries) > 1 then R.Resort() end
 	elseif event == "FRIENDLIST_UPDATE" then
 		R.ReadFriends()
 	elseif event == "SPELLS_CHANGED" then
