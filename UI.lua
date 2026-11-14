@@ -46,7 +46,7 @@ local function HeaderHeight() return HeaderShown() and R.db.headerHeight or 0 en
 
 local function SavePosition()
 	local point, _, rel, x, y = frame:GetPoint(1)
-	R.db.pos = { point, rel, x, y }
+	if point and rel and x and y then R.db.pos = { point, rel, x, y } end
 end
 
 local function BuildList()
@@ -57,12 +57,19 @@ local function BuildList()
 	frame:SetFrameStrata("MEDIUM")
 	frame:SetMovable(true)
 	frame:SetClampedToScreen(true)
-	if db.pos then
-		frame:SetPoint(db.pos[1], UIParent, db.pos[2], db.pos[3], db.pos[4])
-	else
+	frame:SetScale(db.scale)
+	-- a saved position is only used when it is complete and sane; otherwise (or if the
+	-- game can't place the window with it) the window starts left of centre
+	local pos = db.pos
+	local function num(v) return type(v) == "number" and v == v and v > -10000 and v < 10000 end
+	if type(pos) == "table" and type(pos[1]) == "string" and type(pos[2]) == "string" and num(pos[3]) and num(pos[4]) then
+		frame:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
+	end
+	if not frame:GetLeft() then
+		db.pos = nil
+		frame:ClearAllPoints()
 		frame:SetPoint("CENTER", UIParent, "CENTER", -300, 0)
 	end
-	frame:SetScale(db.scale)
 
 	header = CreateFrame("Button", nil, frame)
 	header:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
