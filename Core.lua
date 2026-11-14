@@ -610,6 +610,8 @@ SlashCmdList["NEPOCLEANSE"] = function(msg)
 		db.everywhere = false
 	elseif msg == "go" then
 		return NepoCleanse_CleanseNext()
+	elseif msg == "reset" then
+		return R.ResetPosition and R.ResetPosition()
 	else
 		return NepoCleanse_ToggleOptions()
 	end

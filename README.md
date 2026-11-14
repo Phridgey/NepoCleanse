@@ -26,7 +26,7 @@ Rinse (by Otari), redesigned to stay out of the way.
   window width, row height, list background and whole-window see-through.
 - **General** – where it runs, watch yourself too, skip Abolish, put your target first, sound, lock, rows, size.
 
-Other commands: `/nc on` (run everywhere), `/nc auto` (instances only), `/nc go` (remove the first debuff in range).
+Other commands: `/nc on` (run everywhere), `/nc auto` (instances only), `/nc go` (remove the first debuff in range), `/nc reset` (move the window back to the middle of the screen; also a button on the Title bar page).
 
 On the list: click a row to remove the debuff, Shift + right-click to stop showing that debuff,
 drag the title bar to move it, right-click the title bar for settings.

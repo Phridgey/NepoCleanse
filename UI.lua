@@ -207,6 +207,16 @@ function R.Refresh()
 	header:EnableMouse(HeaderShown() and not quiet)
 end
 
+-- back to the starting spot, left of the middle of the screen
+function R.ResetPosition()
+	R.db.pos = nil
+	if not frame then return end
+	frame:ClearAllPoints()
+	frame:SetPoint("CENTER", UIParent, "CENTER", -300, 0)
+	DEFAULT_CHAT_FRAME:AddMessage("|cff66ccffNepoCleanse:|r window moved back to the middle of the screen"
+		.. (R.active and "." or " (it shows when NepoCleanse is running)."))
+end
+
 function R.OnActiveChanged()
 	if not frame then return end
 	if R.active then
@@ -715,6 +725,7 @@ local function BuildTitleBar(p)
 	local look = function() R.ApplyLook() end
 	Heading(p, "Shown or hidden", 0)
 	Check(p, "Show the title bar", "header", 0, -16, look)
+	SmallButton(p, "Reset position", 100, function() R.ResetPosition() end):SetPoint("TOPRIGHT", p, "TOPRIGHT", -4, -16)
 	Check(p, "Show the name", "headerTitle", 0, -36, look)
 	Check(p, "Show the count", "headerCount", 0, -56, look)
 	Check(p, "Show \"nothing to remove\" when empty", "headerEmptyText", 0, -76, look)
